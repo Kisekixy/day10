@@ -1,0 +1,35 @@
+# Secrets
+secrets/
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Runtime data
+data/
+outputs/
+*.log
+
+# IDE
+.idea/
+.vscode/
+
+# Tests
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# OS
+.DS_Store
+Thumbs.db

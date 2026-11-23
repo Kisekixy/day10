@@ -1,0 +1,87 @@
+
+services:
+  api:
+    build: .
+    image: docker-day10-agent:1.0
+
+    ports:
+      - "127.0.0.1:18002:8000"
+
+    environment:
+      REDIS_URL: redis://redis:6379/0
+      DEEPSEEK_MODEL: deepseek-flash
+      DEEPSEEK_API_KEY_FILE: /run/secrets/deepseek_api_key
+
+    secrets:
+      - deepseek_api_key
+
+    depends_on:
+      redis:
+        condition: service_healthy
+
+    volumes:
+      - agent-data:/app/data
+
+    read_only: true
+
+    tmpfs:
+      - /tmp
+
+    cap_drop:
+      - ALL
+
+    security_opt:
+      - no-new-privileges:true
+
+    cpus: 1.0
+    mem_limit: 512m
+
+    init: true
+    restart: unless-stopped
+
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=2)"
+      interval: 15s
+      timeout: 3s
+      retries: 3
+      start_period: 15s
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  redis:
+    image: redis:7-alpine
+
+    command:
+      - redis-server
+      - --appendonly
+      - "yes"
+
+    volumes:
+      - redis-data:/data
+
+    cpus: 0.5
+    mem_limit: 256m
+
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+    restart: unless-stopped
+
+volumes:
+  agent-data:
+  redis-data:
+
+secrets:
+  deepseek_api_key:
+    file: ./secrets/deepseek_api_key.txt
