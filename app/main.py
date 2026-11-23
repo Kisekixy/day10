@@ -343,3 +343,10 @@ async def chat(body: ChatRequest, request: Request):
         "request_count": count,
         "data_source": "mock_fixture",
     }
+
+@app.get("/version")
+async def version():
+    return {
+        "version": os.getenv("APP_VERSION", "dev"),
+        "release_note": "Added deployment metadata"
+    }
